@@ -59,6 +59,8 @@ type rbdProvisionOptions struct {
 	monitors []string
 	// Ceph RBD pool. Default is "rbd".
 	pool string
+	// Ceph RBD namespace. Default is "".
+	poolNamespace string
 	// Ceph client ID that is capable of creating images in the pool. Default is "admin".
 	adminID string
 	// Secret of admin client ID.
@@ -261,6 +263,8 @@ func (p *rbdProvisioner) parseParameters(parameters map[string]string) (*rbdProv
 				v = "rbd"
 			}
 			opts.pool = v
+		case "poolnamespace":
+			opts.poolNamespace = v
 		case "usersecretname":
 			if v == "" {
 				return nil, fmt.Errorf("missing user secret name")

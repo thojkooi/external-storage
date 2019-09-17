@@ -71,6 +71,11 @@ func (u *RBDUtil) CreateImage(image string, pOpts *rbdProvisionOptions, options 
 		features := strings.Join(pOpts.imageFeatures, ",")
 		args = append(args, "--image-feature", features)
 	}
+
+	if pOpts.poolNamespace != "" {
+		args = append(args, "--namespace", pOpts.poolNamespace)
+	}
+
 	output, err = u.execCommand("rbd", args)
 	if err != nil {
 		klog.Warningf("failed to create rbd image, output %v", string(output))
@@ -109,6 +114,10 @@ func (u *RBDUtil) rbdStatus(image string, pOpts *rbdProvisionOptions) (bool, err
 	//
 	klog.V(4).Infof("rbd: status %s using mon %s, pool %s id %s key %s", image, mon, pOpts.pool, pOpts.adminID, pOpts.adminSecret)
 	args := []string{"status", image, "--pool", pOpts.pool, "-m", mon, "--id", pOpts.adminID, "--key=" + pOpts.adminSecret}
+	if pOpts.poolNamespace != "" {
+		args = append(args, "--namespace", pOpts.poolNamespace)
+	}
+
 	cmd, err = u.execCommand("rbd", args)
 	output = string(cmd)
 
@@ -140,6 +149,10 @@ func (u *RBDUtil) DeleteImage(image string, pOpts *rbdProvisionOptions) error {
 	mon := u.kernelRBDMonitorsOpt(pOpts.monitors)
 	klog.V(4).Infof("rbd: rm %s using mon %s, pool %s id %s key %s", image, mon, pOpts.pool, pOpts.adminID, pOpts.adminSecret)
 	args := []string{"rm", image, "--pool", pOpts.pool, "--id", pOpts.adminID, "-m", mon, "--key=" + pOpts.adminSecret}
+
+	if pOpts.poolNamespace != "" {
+		args = append(args, "--namespace", pOpts.poolNamespace)
+	}
 	output, err = u.execCommand("rbd", args)
 	if err == nil {
 		return nil
